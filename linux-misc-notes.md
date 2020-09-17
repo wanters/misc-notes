@@ -141,7 +141,7 @@
 ```
 * NFS  
 ```
-    网络文件系统，英文Network File System(NFS)，是由SUN公司研制的UNIX表示层协议(presentation layer protocol)，能使使用者访问网络上别处的文件就像在使用自己的计算机一样
+    网络文件系统，英文Network File System(NFS)，是由SUN公司研制的UNIX表示层协议(presentation layer protocol)，能使使用者访问网络上别处的文件就像在使用自己的计算机一样，默认端口号：2049
 ```
 ```vim
     # 搭建nfs服务
@@ -158,6 +158,10 @@
 
 ```
 * NTP  
+```
+    NTP是Network Time Protocol的缩写，又称为网络时间协议。是用来使计算机时间同步化的一种协议，它可以使计算机对其服务器或时钟源（如石英钟，GPS等等)做同步化，它可以提供高精准度的时间校正（LAN上与标准间差小于1毫秒，WAN上几十毫秒），且可介由加密确认的方式来防止恶毒的协议攻击。
+    NTP默认使用的端口号是UDP123
+```
 ```vim
     $ sudo apt-get install ntp        #安装服务端软件
     $ sudo apt-get install ntpdate    #安装客户端软件
@@ -391,4 +395,19 @@ CST:代表４个不同时区：
     静态ip
     dhcp
     注：在连接到支持dhcp的路由上时，怎么使用
+```
+## 27.驱动/应用
+```
+    在设备树中未定义，是否可以直接在应用层使用，定义和不定义的区别是什么
+```
+* GPIO
+* I2C
+```vim
+1.在设备树中定义
+	at24c08@54 {/* 1KB EEPROM */
+		compatible = "atmel,24c08";
+		reg = <0x54>;
+		pagesize = <16>;
+	};
+2.不在设备树中定义
 ```
