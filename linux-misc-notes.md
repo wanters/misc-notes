@@ -396,18 +396,26 @@ CST:代表４个不同时区：
     dhcp
     注：在连接到支持dhcp的路由上时，怎么使用
 ```
-## 27.驱动/应用
+## 27.[stty](https://baike.baidu.com/item/stty)
 ```
-    在设备树中未定义，是否可以直接在应用层使用，定义和不定义的区别是什么
+    打印或更改terminal(终端)的设置
 ```
-* GPIO
-* I2C
-```vim
-1.在设备树中定义
-	at24c08@54 {/* 1KB EEPROM */
-		compatible = "atmel,24c08";
-		reg = <0x54>;
-		pagesize = <16>;
-	};
-2.不在设备树中定义
+## 28.485转向
+```
+    有三种方式实现收发转向
+    1.DCE模式
+        TX  <---> RO (485转换芯片PIN1)
+        RX  <---> DI (485转换芯片PIN4)
+        RTS <---> RE/DE (485转换芯片PIN2和PIN3,PIN2和PIN3短接)
+        RTS作为普通IO,手动输出高低实现收发转向控制(应用层控制GPIO)
+    2.DCE模式(imx6只有在DCE时可以,手册上有说明)
+        TX  <---> RO (485转换芯片PIN1)
+        RX  <---> DI (485转换芯片PIN4)
+        CTS <---> RE/DE (485转换芯片PIN2和PIN3,PIN2和PIN3短接)
+        采用硬件流控,驱动层实现自动转向
+    3.DTE模式
+        RX  <---> RO (485转换芯片PIN1)
+        TX  <---> DI (485转换芯片PIN4)
+        RTS <---> RE/DE (485转换芯片PIN2和PIN3,PIN2和PIN3短接)
+        采用硬件流控,驱动层实现自动转向
 ```
