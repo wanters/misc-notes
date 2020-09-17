@@ -419,3 +419,20 @@ CST:代表４个不同时区：
         RTS <---> RE/DE (485转换芯片PIN2和PIN3,PIN2和PIN3短接)
         采用硬件流控,驱动层实现自动转向
 ```
+## 29.文件系统
+```
+    在嵌入式linux应用中，主要的存储设备为RAM和FLASH。常用的基于存储设备的文件系统类型包括：jffs2，yaffs，cramfs，ramdisk，ramfs等。
+    1.jffs2：日志闪存文件系统版本2，用于NOR flash，可读写、支持数据压缩的日志文件系统
+    2.yaffs/ubitFS：用于nand flash设计的一种日志型文件系统，不支持数据压缩
+    3.Cramfs:只读的压缩文件系统（用的越来越少）
+    4.Ramdisk：将部分固定大小的内存当做块设备来使用
+    5.Initramfs：将内存当做块设备用（现在用的多）
+    6.NFS：网络文件系统 (开发阶段使用)
+```
+## 30.常见压缩
+![tar](./tar.png)  
+## 31.TCP流程
+![tcp](./tcp.jpg)  
+## 32.UDP流程  
+![udp](./udp.jpg)  
+
