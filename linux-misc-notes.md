@@ -11,11 +11,14 @@
     $ vi /etc/apt/sources.list
     $ apt-get update
 ```
-## 3. 安装软件方式  
+## 3. [安装/卸载软件方式](https://www.cnblogs.com/kinwing/p/11829546.html)  
+### 安装
 * 在线安装  
 ```vim
     # 在线安装小火车
     $ sudo apt-get install sl
+    # 重新安装小火车
+    sudo apt-get install --reinstall sl
 ```
 * deb包安装  
 ```vim
@@ -27,6 +30,33 @@
     $ make  
     $ make install
 ```  
+### 卸载[配置文件]
+* remove只删除程序文件，保留相关的配置文件
+```vim
+    $ sudo apt-get remove vim
+```
+* purge同时删除程序文件及其配置文件
+```vim
+    $ sudo apt-get purge vim
+    # 同上
+    $ sudo apt-get remove --purge vim
+```
+* 删除自动安装的软件包(由于依赖而安装的)
+```vim
+    $ sudo apt-get autoremvoe
+```
+### 查看已安装软件  
+* 安装或未安装软件版本  
+```vim
+    # 查看已安装或即将安装包的版本
+    $ sudo apt-get -s install tree
+    # 安装指定版本
+    $ sudo apt-get install tree=1.7.0-5
+```
+* 查看已安装的软件  
+```
+    $ dpkg -l
+```
 ## 4. 应用开机启动
 ```
     系统启动时需要加载的配置文件
@@ -390,10 +420,13 @@ CST:代表４个不同时区：
 	2.通过EEUPDATE更新i210配置(invm和flash两种),工具在intel官网下载
 	3.内核中添加对应的驱动
 ```
-## 25.安装交叉编译工具链
+## 25.交叉编译工具链
+* 各版本arm-gcc区别
 ```
 
 ```
+* 安装方式
+
 ## 26.ip设置
 ```
     静态ip
@@ -454,5 +487,60 @@ CST:代表４个不同时区：
 ```
 ## 34.嵌入式框架(总结)
 ![linux嵌入式框架](./嵌入式框架/linux嵌入式框架.png)
-## 35.cgi
+## 35.[cgi](https://github.com/boutell/cgic.git)
 ![cgi](./cgi.png)  
+## 36.字节对齐
+* [字节对齐背景知识](https://www.cnblogs.com/clover-toeic/p/3853132.html)
+```vim
+    字节对齐的问题主要就是针对结构体
+```
+* 对齐准则说法1  
+```
+    1.数据类型自身的对齐值：char型数据自身对齐值为1字节，short型数据为2字节，int/float型为4字节，double型为8字节。
+    2.结构体或类的自身对齐值：其成员中自身对齐值最大的那个值。
+    3.指定对齐值：#pragma pack (value)时的指定对齐值value。
+    4.数据成员、结构体和类的有效对齐值：自身对齐值和指定对齐值中较小者，即有效对齐值=min{自身对齐值，当前指定的pack值}。
+```
+* 对齐准则说法2
+```
+    1.结构体变量的首地址能够被其最宽基本类型成员的大小所整除；
+    2.结构体每个成员相对结构体首地址的偏移量(offset)都是成员大小的整数倍，如有需要编译器会在成员之间加上填充字节(internal adding)；
+    3.结构体的总大小为结构体最宽基本类型成员大小的整数倍，如有需要编译器会在最末一个成员之后加上填充字节{trailing padding}。
+```
+* 字节对齐方式
+> * 方式1  
+> 使用伪指令#pragma pack(n)：C编译器将按照n个字节对齐；  
+> 使用伪指令#pragma pack()： 取消自定义字节对齐方式。
+```vim
+    //按2字节对齐
+    #pragma pack(2)  //指定按2字节对齐
+    struct C{
+        char  b;
+        int   a;
+        short c;
+    };
+    #pragma pack()   //取消指定对齐，恢复缺省对齐
+```
+```vim
+    //按8字节对齐
+    #pragma pack(8)
+    struct D{
+        char  b;
+        short a;
+        char  c;
+    };
+    #pragma pack()
+    //虽然#pragma pack(8)，但依然按照两字节对齐，所以sizeof(struct D)的值为6。因为：对齐到的字节数 = min｛当前指定的pack值，最大成员大小｝
+```
+> * 方式2(GCC特有语法)  
+> \_\_attribute__((aligned (n)))：让所作用的结构成员对齐在n字节自然边界上。如果结构体中有成员的长度大于n，则按照最大成员的长度来对齐  
+> \_\_attribute__ ((packed))：取消结构在编译过程中的优化对齐，按照实际占用字节数进行对齐
+```vim
+    //按1字节对齐(GCC)
+    #define GNUC_PACKED __attribute__((packed))
+    struct C{
+        char  b;
+        int   a;
+        short c;
+    }GNUC_PACKED;
+```
