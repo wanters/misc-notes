@@ -9,16 +9,20 @@
 ## 2. 修改apt-get下载源  
 ```vim
     $ vi /etc/apt/sources.list
-    $ apt-get update
+    $ apt-get update        //将所有包的来源更新，也就是提取最新的包信息
+    $ apt-get upgrade -y    //将系统中旧版本的包升级成最新的
+    $ apt-get dist-upgrade -y   //
 ```
 ## 3. [安装/卸载软件方式](https://www.cnblogs.com/kinwing/p/11829546.html)  
 ### 安装
 * 在线安装  
 ```vim
-    # 在线安装小火车
+    // 在线<新装>安装小火车
     $ sudo apt-get install sl
-    # 重新安装小火车
-    sudo apt-get install --reinstall sl
+    // <重装>小火车
+    $ sudo apt-get install --reinstall sl
+    // <更新>当前版本的包而不是安装新的版本
+    $ sudo apt-get install --only-upgrade sl
 ```
 * deb包安装  
 ```vim
@@ -30,6 +34,7 @@
     $ make  
     $ make install
 ```  
+
 ### 卸载[配置文件]
 * remove只删除程序文件，保留相关的配置文件
 ```vim
@@ -46,9 +51,9 @@
     $ sudo apt-get autoremvoe
 ```
 ### 查看已安装软件  
-* 安装或未安装软件版本  
+* 模拟执行并输出结果  
 ```vim
-    # 查看已安装或即将安装包的版本
+    # 模拟执行并输出结果
     $ sudo apt-get -s install tree
     # 安装指定版本
     $ sudo apt-get install tree=1.7.0-5
@@ -57,6 +62,24 @@
 ```
     $ dpkg -l
 ```
+### 搜索软件可安装版本
+```vim
+    $ sudo apt-cache search g++ | grep g++
+    //使用 apt 安装的 g++ 编译器和相关库的版本只能选择大的版本号如 6 ，而无法指定具体的小版本号 6.3.0，如笔者安装的 g++-6 的版本实际为 g++-6.4.0.
+    $ sudo apt install g++-n g++-n-multilib        //安装对应的 g++ 编译器和库  
+```
+### 总结
+| apt 命令 | 取代的命令 | 命令的功能 |
+| --- | --- | --- |
+|apt install |apt-get install |安装软件包 |
+|apt remove  |apt-get remove  |移除软件包 |
+|apt purge   |apt-get purge   |移除软件包及配置文件| 
+|apt update  |apt-get update  |刷新存储库索引 |
+|apt upgrade |apt-get upgrade |升级所有可升级的软件包| 
+|apt autoremove |apt-get autoremove |自动删除不需要的包| 
+|apt full-upgrade |apt-get dist-upgrade |在升级软件包时自动处理依赖关系| 
+|apt search |apt-cache search |搜索应用程序| 
+|apt show   |apt-cache show   |显示装细节| 
 ## 4. 应用开机启动
 ```
     系统启动时需要加载的配置文件
@@ -274,11 +297,43 @@
 ## 10.热插拔
 ```
 ```
-## 11.应用多版本选择
+## 11.[update-alternatives](https://www.jianshu.com/p/4d27fa2dce86)
 ```
-    # arm-linux-gnueabi-gcc-7和arm-linux-gnueabi-gcc-5配置和选择
-    update-alternatives --install   #进行优先级配置（优先级数字大则为auto mode）
-    update-alternatives --config    #进行选择
+    1.alternatives 的管理目录 /etc/alternatives
+    2.查看软件候选项
+        $ update-alternatives --display arm-linux-gnueabi-gcc
+    3.选择软件候选项
+        $ update-alternatives --config arm-linux-gnueabi-gcc
+    4.添加一个命令的link值
+        $ update-alternatives --install /usr/bin/python python /usr/bin/python2.7 2
+    5.删除一个命令的link值
+        $ update-alternatives –remove python /usr/bin/python2.7
+```
+* 语法
+```
+$ update-alternatives --help
+用法：update-alternatives [<选项> ...] <命令>
+
+命令：
+  --install <链接> <名称> <路径> <优先级>
+    [--slave <链接> <名称> <路径>] ...
+                           在系统中加入一组候选项。
+  --remove <名称> <路径>   从 <名称> 替换组中去除 <路径> 项。
+  --remove-all <名称>      从替换系统中删除 <名称> 替换组。
+  --auto <名称>            将 <名称> 的主链接切换到自动模式。
+  --display <名称>         显示关于 <名称> 替换组的信息。
+  --query <名称>           机器可读版的 --display <名称>.
+  --list <名称>            列出 <名称> 替换组中所有的可用候选项。
+  --get-selections         列出主要候选项名称以及它们的状态。
+  --set-selections         从标准输入中读入候选项的状态。
+  --config <名称>          列出 <名称> 替换组中的可选项，并就使用其中哪一个，征询用户的意见。
+  --set <名称> <路径>      将 <路径> 设置为 <名称> 的候选项。
+  --all                    对所有可选项一一调用 --config 命令。
+
+<链接> 是指向 /etc/alternatives/<名称> 的符号链接。(如 /usr/bin/pager)
+<名称> 是该链接替换组的主控名。(如 pager)
+<路径> 是候选项目标文件的位置。(如 /usr/bin/less)
+<优先级> 是一个整数，在自动模式下，这个数字越高的选项，其优先级也就越高。
 ```
 ## 12.运行级别
 ```
@@ -420,14 +475,115 @@ CST:代表４个不同时区：
 	2.通过EEUPDATE更新i210配置(invm和flash两种),工具在intel官网下载
 	3.内核中添加对应的驱动
 ```
-## 25.交叉编译工具链
-* 各版本arm-gcc区别
+## 25.[交叉编译工具链](https://blog.csdn.net/guodeqiangde/article/details/78239408)
+* **当前使用版本**
 ```
+    gcc:
+        系统版本：Ubuntu 14.04.6 LTS
+        gcc版本：gcc (Ubuntu 4.8.4-2ubuntu1~14.04.4) 4.8.4
+    arm-linux-gcc->arm-linux-gnueabihf-gcc[adlink]:
+        系统版本：Ubuntu 14.04.6 LTS
+        arm-linux-gcc版本: gcc version 4.9.1 20140710 (prerelease) (crosstool-NG linaro-1.13.1-4.9-2014.07 - Linaro GCC 4.9-2014.07)
+        文件：gcc-linaro-arm-linux-gnueabihf-4.9-2014.07_linux
+        编译内核：4.1.15-1.0.0
+    arm-poky-linux-gnueabi-gcc[advantech]:
+        系统版本：Ubuntu 14.04.6 LTS
+        arm-poky-linux-gnueabi-gcc版本：gcc version 5.3.0 (GCC)
+        文件：fsl-imx-x11-2.1.tar.bz2
+        编译内核：4.1.15-2.0.0
+    arm-linux-gcc->arm-fsl-linux-gnueabi-gcc[norco]:
+        系统版本：Ubuntu 14.04.6 LTS
+        arm-fsl-linux-gnueabi-gcc版本：gcc version 4.6.2 20110630 (prerelease) (Freescale MAD -- Linaro 2011.07 -- Built at 2011/08/10 09:20)
+        文件：fsl-linaro-toolchain
+        编译内核：未开放
+```
+* **命名规则**
+```
+交叉编译工具链的命名规则为：arch [-vendor] [-os] [-(gnu)eabi]
+* arch – 体系架构，如ARM，MIPS
+* vendor – 工具链提供商
+* os – 目标操作系统
+* eabi – 嵌入式应用二进制接口（Embedded Application Binary Interface）
+
+根据对操作系统的支持与否，ARM GCC可分为支持和不支持操作系统，如
+* arm-none-eabi：这个是没有操作系统的，自然不可能支持那些跟操作系统关系密切的函数，比如fork(2)。他使用的是newlib这个专用于嵌入式系统的C库。
+* arm-none-linux-eabi：用于Linux的，使用Glibc
+```
+* **各版本arm-gcc区别**
 
 ```
-* 安装方式
+armcc
+    ARM 公司推出的编译工具，功能和 arm-none-eabi 类似，可以编译裸机程序（u-boot、kernel），但是不能编译 Linux 应用程序。armcc一般和ARM开发工具一起，Keil MDK、ADS、RVDS和DS-5中的编译器都是armcc，所以 armcc 编译器都是收费的
 
-* 最新/常用版本
+arm-eabi-gcc
+    Android ARM 编译器
+
+arm-none-eabi-gcc
+    （ARM architecture，no vendor，not target an operating system，complies with the ARM EABI）
+    用于编译 ARM 架构的裸机系统（包括 ARM Linux 的 boot、kernel，不适用编译 Linux 应用 Application），一般适合 ARM7、Cortex-M 和 Cortex-R 内核的芯片使用，所以不支持那些跟操作系统关系密切的函数，比如fork(2)，他使用的是 newlib 这个专用于嵌入式系统的C库
+
+arm-none-linux-gnueabi-gcc
+    1.arm-none-linux-gnueabi-gcc是 Codesourcery 公司（目前已经被Mentor收购）基于GCC推出的的ARM交叉编译工具。可用于交叉编译ARM系统中所有环节的代码，包括裸机程序、u-boot、Linux kernel、filesystem和App应用程序
+    (ARM architecture, no vendor, creates binaries that run on the Linux operating system, and uses the GNU EABI)
+
+    2.主要用于基于ARM架构的Linux系统，可用于编译 ARM 架构的 u-boot、Linux内核、linux应用等。arm-none-linux-gnueabi基于GCC，使用Glibc库，经过 Codesourcery 公司优化过推出的编译器。arm-none-linux-gnueabi-xxx 交叉编译工具的浮点运算非常优秀。一般ARM9、ARM11、Cortex-A 内核，带有 Linux 操作系统的会用到
+
+arm-none-uclinuxeabi-gcc 和 arm-none-symbianelf-gcc
+    arm-none-uclinuxeabi 用于uCLinux，使用Glibc
+    arm-none-symbianelf 用于symbian
+
+```
+* **ABI和EABI**
+```
+ABI：二进制应用程序接口(Application Binary Interface (ABI) for the ARM Architecture)。在计算机中，应用二进制接口描述了应用程序（或者其他类型）和操作系统之间或其他应用程序的低级接口。
+
+EABI：嵌入式ABI。嵌入式应用二进制接口指定了文件格式、数据类型、寄存器使用、堆积组织优化和在一个嵌入式软件中的参数的标准约定。开发者使用自己的汇编语言也可以使用 EABI 作为与兼容的编译器生成的汇编语言的接口。
+
+两者主要区别是，ABI是计算机上的，EABI是嵌入式平台上（如ARM，MIPS等)
+```
+* **arm-linux-gnueabi-gcc 和 arm-linux-gnueabihf-gcc**
+```
+两个交叉编译器分别适用于 armel 和 armhf 两个不同的架构，armel 和 armhf 这两种架构在对待浮点运算采取了不同的策略（有 fpu 的 arm 才能支持这两种浮点运算策略）。
+arm-linux-gnueabi-gcc: 使用hard硬件浮点模式
+arm-linux-gnueabi-gcc：使用softfp模式
+
+其实这两个交叉编译器只不过是 gcc 的选项 -mfloat-abi 的默认值不同。gcc 的选项 -mfloat-abi 有三种值 soft、softfp、hard（其中后两者都要求 arm 里有 fpu 浮点运算单元，soft 与后两者是兼容的，但 softfp 和 hard 两种模式互不兼容）：
+soft： 不用fpu进行浮点计算，即使有fpu浮点运算单元也不用，而是使用软件模式。
+softfp： armel架构（对应的编译器为 arm-linux-gnueabi-gcc ）采用的默认值，用fpu计算，但是传参数用普通寄存器传，这样中断的时候，只需要保存普通寄存器，中断负荷小，但是参数需要转换成浮点的再计算。
+hard： armhf架构（对应的编译器 arm-linux-gnueabihf-gcc ）采用的默认值，用fpu计算，传参数也用fpu中的浮点寄存器传，省去了转换，性能最好，但是中断负荷高。
+```
+* **安装方式**
+```
+1.Linux解压版：在Linux主机（如Ubuntu、RedHat等）直接解压即可使用。推荐方式！
+2.Linux安装版：在Linux主机下执行后按照提示安装后使用。
+3.Windows解压版：在Windows系统下解压后使用，但是需要MingW32。
+4.Windows安装版：在Windows系统下安装后使用。
+5.RPM安装版：RedHat系统安装包，新版本不提供该类安装包。
+6.源码版：交叉编译器源代码，一般很少用到
+```
+* **安装/卸载**
+```vim
+    //安装arm-linux-gnueabi-gcc或arm-linux-gnueabidf-gcc
+    $ sudo apt-get install gcc-arm-linux-gnueabi 
+    $ sudo apt-get install gcc-arm-linux-gnueabihf
+    //安装arm-linux-gnueabi-g++或arm-linux-gnueabidf-g++
+    $ sudo apt-get install g++-arm-linux-gnueabi
+    $ sudo apt-get install g++-arm-linux-gnueabihf
+
+    //卸载arm-linux-gnueabi-gcc或arm-linux-gnueabidf-gcc
+    $ sudo apt-get remove --purge gcc-arm-linux-gnueabi 
+    $ sudo apt-get remove --purge gcc-arm-linux-gnueabihf  
+    //卸载arm-linux-gnueabi-g++或arm-linux-gnueabidf-g++
+    $ sudo apt-get remove --purge g++-arm-linux-gnueabi
+    $ sudo apt-get remove --purge g++-arm-linux-gnueabihf  
+
+注：
+    这样安装一般是当前系统支持的最新版本，当然可以根据实际版本需求，进行压缩包解压安装，添加到系统路径即可
+```
+* **下载地址**
+> * [GCC Releases](https://gcc.gnu.org/releases.html)
+> * [linaro](https://www.linaro.org)
+> * [arm](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads)
 ## 26.ip设置
 ```
     静态ip
