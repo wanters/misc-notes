@@ -781,3 +781,35 @@ Linux应用编程书籍推荐：
         short c;
     }GNUC_PACKED;
 ```
+## 37.STM32-lwip
+```
+初始化流程
+1.分配内存
+	ETH_Mem_Malloc
+	lwip_comm_mem_malloc
+	lwip_comm_default_ip_set（获取默认ip、netmask、gatway）
+2.设置mac
+	读st芯片唯一id作为mac地址
+	硬复位lan8720
+	初始化ETH（配置mac和开启中断）
+		HAL_ETH_Init
+3.初始化lwip
+	lwip_init
+	转换ip、netmask和gateway
+		IP4_ADDR
+	网卡名称
+	netif_add
+		添加网卡
+		初始化ip、netmask和gateway及硬件初始化
+	netif_set_default
+		设定默认网卡
+	netif_set_up
+		启动网卡
+
+注意事项
+	1.没有插网线时上电
+	2.连续连接断开（看stm32的tcp收发是否正常）
+	3.正常连接，拔网线->插网线
+		无心跳时，插拔可正常通信
+		心跳（3秒一次，一次poll是0.5秒）
+```
