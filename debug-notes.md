@@ -95,7 +95,11 @@ mtrace      检查内存错误
 proc文件系统
 系统日志
 ```
-## 4.[后台服务启动方式systemd、daemon、nohup](https://www.pianshen.com/article/76671272980/)
+## 4.[死锁](https://www.cnblogs.com/lovedesy123/p/7752077.html)
+```
+    如何检查线程是否死锁
+```
+## 5.[后台服务启动方式systemd、daemon、nohup](https://www.pianshen.com/article/76671272980/)
 ```
 后台运行服务的基本需求：
     * 脱离终端（终端关闭时，服务不能关闭）
@@ -126,7 +130,7 @@ nohup
     只有systemd能够实现上述所有需求
         默认的日志中增加了时间、用户名、服务名称、PID等，非常人性化，还能看到服务运行异常退出的日志，还能通过/lib/systemd/system/下的配置文件定制各种需求
 ```
-## 5.[交叉工具链使用](https://blog.csdn.net/lushoumin/article/details/81866864)
+## 6.[交叉工具链使用](https://blog.csdn.net/lushoumin/article/details/81866864)
 * 交叉编译工具
 ```
 arm-linux-gcc
@@ -193,7 +197,7 @@ arm-linux-ar
 > 1.防止反汇编  
 > 2.[elf文件和二进制文件区别](https://blog.csdn.net/sunny04/article/details/27548919)  
 > 3.带调试信息的程序和不带的区别  
-## 6.静态库和动态库使用
+## 7.静态库和动态库使用
 * 静态库
 > * **1.静态库优缺点**  
 >   静态库在编译的时候，主程序文件与静态库一起编译，把主程序与主程序中用到的库函数一起整合进了目标文件  
@@ -225,7 +229,7 @@ arm-linux-ar
 > ```vim
 >   gcc -o target target.c -L/home/stephen/demo -lstatic
 > ```
-## makefile中使用宏
+## 8.makefile中使用宏
 ```
     方式1：
         gcc -D MACRONAME=MACRODEF
