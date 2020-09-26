@@ -239,3 +239,7 @@ arm-linux-ar
 注：
      -D macro，等价于在头文件中定义：#define macro 1
 ```
+## 9.[进程退出以及内存释放](https://blog.csdn.net/zhuxinquan61/article/details/47143313)
+```
+exit、return和_exit区别
+```
