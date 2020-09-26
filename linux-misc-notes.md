@@ -813,3 +813,11 @@ Linux应用编程书籍推荐：
 		无心跳时，插拔可正常通信
 		心跳（3秒一次，一次poll是0.5秒）
 ```
+## 38.查看/修改系统主频
+```
+1.cat /proc/cpuinfo
+2.cat /sys/devices/system/cpu/cpu0/cpufreq/cpu_cur_freq
+   //手动修改主频
+   echo userspace > 	//开启用户权限
+   echo 792000 > 		//设置主频
+```
