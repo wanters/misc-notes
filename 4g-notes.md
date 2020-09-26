@@ -40,6 +40,32 @@
 	添加ECM驱动
 	AT指令拨号
 ```
+* 2.6 实际使用
+```
+1.拨号
+	拨号不成功，重复拨号
+
+2.设定route
+	ping外网确定是否在线
+
+3.修改路由表
+添加默认路由
+	route add default dev ppp0
+添加路由规则
+	route add -net 192.168.3.0/24 dev eth0 （目标/子网掩码 + dev）
+	route add -net 192.168.2.0/24 gw 192.168.3.254（目标/子网掩码 + gw）
+删除默认路由
+
+ppp0      Link encap:Point-to-Point Protocol  
+          inet addr:10.43.253.30  P-t-P:10.64.64.64  Mask:255.255.255.255
+          UP POINTOPOINT RUNNING NOARP MULTICAST  MTU:1500  Metric:1
+          RX packets:5 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:6 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:3 
+          RX bytes:62 (62.0 B)  TX bytes:101 (101.0 B)
+```
+* 2.7 4G集成
+![4G集成](4G集成.png)
 ## 3.华为4G模块拨号方式(me909s-821)
 ```
     1.华为模块在 Linux 侧使用的驱动分为两部分。
