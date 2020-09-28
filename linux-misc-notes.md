@@ -821,3 +821,102 @@ Linux应用编程书籍推荐：
    echo userspace > 	//开启用户权限
    echo 792000 > 		//设置主频
 ```
+## 39.存储
+```
+     emmc
+     ssd
+     sdio 
+     eeprom 
+     ufs 
+     ddr
+```
+## 40.ps使用
+```
+    # 查看某个进程创建的线程
+    $ ps -T -p <pid>
+```
+## 41.websocket
+* [RFC 6455 - The WebSocket Protocol](https://blog.csdn.net/u011645307/article/details/76682705)
+## 42.ARM体系架构
+* [ARM CPU 架构](https://www.cnblogs.com/zhangjiankun/p/4852749.html)
+![arm-cpu架构](arm-cpu架构.png)
+* [ARM体系架构总结](https://blog.csdn.net/frank_zyp/article/details/84646051)
+* [ARM架构处理器全解析](https://blog.csdn.net/FunkyFrog821951259/article/details/79896210)
+## 43.进程间通信持续性
+* [IPC持续性](https://zhuanlan.zhihu.com/p/37872762)
+* [进程间通信](http://www.cppblog.com/tankzhouqiang/archive/2011/07/04/150085.html)
+![进程间通信持续性](进程间通信持续性.jpg)
+## 44.linux kernel map
+![linux-kernel-map](linux-kernel-map.png)
+## 45.[环境变量](https://www.freecplus.net/ebfb46a0f8014f59a16c78ec8de73468.html)
+* 环境变量含义
+```
+    程序（操作系统命令和应用程序）的执行都需要运行环境，这个环境是由多个环境变量组成的。
+```
+* 环境变量的分类
+```
+1）按生效的范围分类。
+系统环境变量：公共的，对全部的用户都生效。
+用户环境变量：用户私有的、自定义的个性化设置，只对该用户生效。
+
+2）按生存周期分类。
+永久环境变量：在环境变量脚本文件中配置，用户每次登录时会自动执行这些脚本，相当于永久生效。
+临时环境变量：使用时在Shell中临时定义，退出Shell后失效。
+```
+* 常用环境变量
+```
+1）PATH
+可执行程序的搜索目录，可执行程序包括Linux系统命令和用户的应用程序，PATH变量的具体用法本文后面的章节中有详细的介绍。
+2）LANG
+Linux系统的语言、地区、字符集，LANG变量的具体用法本文后面的章节中有详细的介绍。
+3）HOSTNAME
+服务器的主机名。
+4）SHELL
+用户当前使用的Shell解析器。
+5）HISTSIZE
+保存历史命令的数目。
+6）USER
+当前登录用户的用户名。
+7）HOME
+当前登录用户的主目录。
+8）PWD
+当前工作目录。
+9）LD_LIBRARY_PATH
+C/C++语言动态链接库文件搜索的目录，它不是Linux缺省的环境变量，但对C/C++程序员来说非常重要，具体用法本文后面的章节中有详细的介绍。
+```
+* 系统环境变量
+```
+系统环境变量对全部的用户生效，设置系统环境变量有三种方法。
+1）在/etc/profile文件中设置。
+用户登录时执行/etc/profile文件中设置系统的环境变量。但是，Linux不建议在/etc/profile文件中设置系统环境变量。
+2）在/etc/profile.d目录中增加环境变量脚本文件，这是Linux推荐的方法。
+/etc/profile在每次启动时会执行 /etc/profile.d下全部的脚本文件。/etc/profile.d比/etc/profile好维护，不想要什么变量直接删除 /etc/profile.d下对应的 shell 脚本即可。
+3）在/etc/bashrc文件中设置环境变量。
+该文件配置的环境变量将会影响全部用户使用的bash shell。但是，Linux也不建议在/etc/bashrc文件中设置系统环境变量。
+```
+* 用户环境变量
+```
+用户环境变量只对当前用户生效，设置用户环境变量也有多种方法
+1）.bash_profile（推荐首选）
+当用户登录时执行，每个用户都可以使用该文件来配置专属于自己的环境变量。
+2）.bashrc
+当用户登录时以及每次打开新的Shell时该文件都将被读取，不推荐在里面配置用户专用的环境变量，因为每开一个Shell，该文件都会被读取一次，效率肯定受影响
+3）.bash_logout
+当每次退出系统（退出bash shell）时执行该文件
+4）.bash_history
+保存了当前用户使用过的历史命令
+```
+* 环境变量脚本文件的执行顺序
+```
+/etc/profile->/etc/profile.d->/etc/bashrc->用户的.bash_profile->用户的.bashrc
+```
+* 环境变量的生效
+```
+1）在Shell下，用export设置的环境变量对当前Shell立即生效，Shell退出后失效。
+
+2）在脚本文件中设置的环境变量不会立即生效，退出Shell后重新登录时才生效，或者用source命令让它立即生效，例如：
+    $ source /etc/profile
+```
+
+
+
