@@ -291,12 +291,103 @@
     p:管道文件
 ```
 ## 9.文件系统自动挂载
+* /etc/mtab
 ```
-/etc/fstab
+1.文件格式
+    /etc/mtab 的格式和/etc/fstab 是一样的.但这个文件不能算是用户配置文件,
+    他是由系统维护的.和/etc/fstab 的区别在于, fstab 是系统启动时需挂载的文
+    件系统列表,而 mtab 是系统当前已挂载的文件系统列表,它由系统维护,在用户
+    执行了 mount 或者 umount 命令后自动更新.用户不应该对此文件作任何修改
+2.安全性
+    /etc/mtab 的默认权限仍然是 644
+3.相关命令
+    mount
+    umount
+    smbmount
+```
+* /etc/fstab
+```
+1.文件格式
+    /etc/fstab 记载了系统启动时自动挂载的文件系统。一行为一条记录。每条记
+    录有 6 个字段，字段间用空格或者 tab 键分开。这六个字段分别是：设备名称，
+    挂载点（除交换分区为 swap 外，都必须是一个存在的目录名），文件系统类型，
+    mount 选项，是否需要 dump（1 表示需要，0 表示不需要），在 reboot 期间 fsck
+    检查的顺序（激活文件系统设定为 1，其余文件系统设定为 2，若设定为 0 表示
+    该文件系统不需要被检查）。
+    在 linux 和 windows 共存时，也许想开机自动挂载 windows 分区，那么就可以
+    在这个文件里加上相应的记录。
+    某些时候对硬盘分区作了调整以后，这里也需要做一些相应的修改。否则会出
+    现一些问题。
+    可用的 mount 选项：
+    async
+        对该文件系统的所有 I/O 操作都异步执行
+    ro
+        该文件系统是只读的
+    rw
+        该文件系统是可读可写的
+    atime
+        更新每次存取 inode 的存取时间
+    auto
+        可以使用 -a 选项 mount
+    defaults
+        使用预设的选项：rw,suid,dev,exec,auto,nouser,async
+    dev
+        解释在文件系统上的字符或区块设备
+    exec
+        允许执行二进制文件
+    noatime
+        不要在这个文件系统上更新存取时间
+    noauto
+        这个文件系统不能使用 -a 选项来 mount
+    nodev
+        不要解释在文件系统上的字符或区块设备
+    noexec
+        不允许在 mounted 文件系统上执行任何的二进制文件。这个选项对于具有包含
+        非它自己的二进制结构的文件系统服务器而言非常有用
+    nosuid
+        不允许 setuid 和 setgid 位发生作用。（这似乎很安全，但是在安装 suidperl
+        后，同样不安全）。
+    nouser
+        限制一般非 root 用户 mount 文件系统
+    remount
+        尝试重新 mount 已经 mounted 的文件系统。这通常是用来改变文件系统的 mount
+        标志，特别是让只读的文件系统变成可擦写的
+    suid
+        允许 setuid 和 setgid 位发生作用
+    sync
+        文件系统的所有 I/O 同步执行
+    user
+        允许一般非 root 用户 mount 文件系统。这个选项会应用 noexec,nosuid,nodev
+        这三个选项（除非在命令行上有指定覆盖这些设定的选项）。
+2.安全性
+    /etc/fstab 的默认权限是 644,所有者和所有组均为 root
+3.相关命令
+    mount
+    df
+    列举计算机当前“可以安装”的文件系统。这非常重要，因为计算机引导时将
+    运行 mount -a 命令，该命令负责安装 fstab 的倒数第二列中带有“1”标记
+    的每一个文件系统。
+```
+* /etc/mtools.conf 
+```
+    DOS 类型的文件系统上所有操作（创建目录、复制、格式化等等）的配置
 ```
 ## 10.热插拔
+* [udev实现热插拔](https://www.cnblogs.com/linhaostudy/archive/2017/11/12/7820518.html)
+>```
+> usb（网卡、u盘等）和sd卡
+>```
+* [udev、mdev和devfs之间的区别](https://blog.csdn.net/wade_510/article/details/72083189)
 ```
+    mdev是udev的简化版本，是busybox中所带的程序，最适合用在嵌入式系统，而udev一般用在PC上的linux中，相对mdev来说要复杂些。
+    devfs是2.4内核引入的，而在2.6内核中却被udev所替代，他们有着共同的优点，只是devfs中存在一些未修复的BUG，作者也停止了对他的维护，最显著的一个区别，采用devfs时，当一个并不存在的设备结点时，他却还能自动的加载对应的设备驱动，而udev则不能加载，因为加载浪费了资源。
+
+    dev和mdev是两个使用uevent 机制处理热插拔问题的用户空间程序，两者的实现机理不同。
+    udev是基于netlink 机制的，它在系统启动时运行了一个deamon程序udevd，通过监听内核发送的uevent来执行相应的热拔插动作，包括创建/删除设备节点，加载/卸载驱动模块等等。
+    mdev是基于uevent_helper机制的，它在系统启动时修改了内核中的uevnet_helper变量（通过写/proc/sys/kernel/hotplug），值为“/sbin/mdev”。这样内核产生uevent时会调用uevent_helper所指的用户级程序，也就是mdev，来执行相应的热拔插动作。udev使用的netlink机制在有大量uevent的场合效率高，适合用在PC 机上。
+
 ```
+> 思考：热插拔(udev)和文件系统自动挂载(fstab)之间的关系
 ## 11.[update-alternatives](https://www.jianshu.com/p/4d27fa2dce86)
 ```
     1.alternatives 的管理目录 /etc/alternatives
@@ -917,6 +1008,164 @@ C/C++语言动态链接库文件搜索的目录，它不是Linux缺省的环境�
 2）在脚本文件中设置的环境变量不会立即生效，退出Shell后重新登录时才生效，或者用source命令让它立即生效，例如：
     $ source /etc/profile
 ```
-
-
+## 46./etc/syslog
+```
+syslogd 是一种守护进程，它负责记录（写到磁盘）从其它程序发送到系统
+的消息。这个服务尤其常被某些守护进程所使用，这些守护进程不会有另外
+的方法来发出可能有问题存在的信号或向用户发送消息。
+1.文件格式
+/etc/syslog.conf 是 syslog 守护程序的配置文件.syslog 守护程序为记录
+来自运行于系统之上的程序的消息提供了一种成熟的客户机 -服务器机制。
+syslog 接收来自守护程序或程序的消息，根据优先级和类型将该消息分类，
+然后根据由管理员可配置的规则将它写入日志。结果是一个健壮而统一的管
+理日志的方法。
+这个文件由一条条的规则组成.每条规则应该写在一行内.但是如果某行以
+反斜线 \ 结尾的话,他的下个物理行将被认为与此行同属于一行.空白行和
+以 # 开始的行将被忽略.
+每条规则都是下面这种形式:
+facility.priority[;facility.priority .....] action
+facility和priority之间用一个英文句点分隔.他们的整体称为selector.
+每条规则可以有多个 selector,selector 之间用分号隔开. 而 selector 和
+action 之间则用空格或者 tab 隔开.
+facility 指定 syslog 功能，主要包括以下这些：
+auth 由 pam_pwdb 报告的认证活动。
+authpriv 包括特权信息如用户名在内的认证活动
+cron 与 cron 和 at 有关的信息。
+daemon 与 inetd 守护进程有关的信息。
+kern 内核信息，首先通过 klogd 传递。
+lpr 与打印服务有关的信息。
+mail 与电子邮件有关的信息
+mark syslog 内部功能用于生成时间戳
+news 来自新闻服务器的信息
+syslog 由 syslog 生成的信息
+user 由用户程序生成的信息
+uucp 由 uucp 生成的信息
+local0----local7 与自定义程序使用，例如使用 local5 做为 ssh 功能
+* 通配符代表除了 mark 以外的所有功能
+priority 指定消息的优先级. 与每个功能对应的优先级是按一定顺序排列
+的，emerg 是最高级，其次是 alert，依次类推。缺省时，在
+/etc/syslog.conf 记录中指定的级别为该级别和更高级别。如果希望使用
+确定的级别可以使用两个运算符号！(不等)和=。
+user.=info
+表示告知 syslog 接受所有在 info 级别上的 user 功能信息。
+可用的 syslog 优先级如下:
+emerg 或 panic 该系统不可用
+alert 需要立即被修改的条件
+crit 阻止某些工具或子系统功能实现的错误条件
+err 阻止工具或某些子系统部分功能实现的错误条件
+warning 预警信息
+notice 具有重要性的普通条件
+info 提供信息的消息
+debug 不包含函数条件或问题的其他信息
+none 没有重要级，通常用于排错
+* 所有级别，除了 none
+action 字段所表示的活动具有许多灵活性，特别是，可以使用名称管道的作
+用是可以使 syslogd 生成后处理信息。
+syslog 主要支持以下 action
+file
+指定文件的绝对路径,如: /var/log/messages . log 信息将写到此文件中
+terminal 或 printer
+完全的串行或并行设备标志符,如/dev/console . log 信息将送到此设备
+@host
+远程的日志服务器. log 信息将送到此日志服务器
+username
+发送信息给指定用户
+named pipe
+指定使用 mkfifo 命令来创建的 FIFO 文件的绝对路径。
+如果对此文件作了改动, 想要使改动生效，您需要向 syslog 守护程序通知
+所做的更改。向它发送 SIGHUP 是个正确的办法，您可以用 killall 命令
+轻松地做到这一点：
+# killall -HUP syslogd
+2.安全性
+您应该清楚如果 syslogd 写的日志文件还不存在的话，程序将创建它们。
+无论您当前的 umask 如何设置，该文件将被创建为可被所有用户读取。如
+果您关心安全性，那么您应该用 chmod 命令将该文件设置为仅 root 用户
+可读写。此外，可以用适当的许可权配置 logrotate 程序（在下面描述）
+以创建新的日志文件。syslog 守护程序始终会保留现有日志文件的当前属
+性，因此一旦创建了文件，您就不需要担心它。
+3.相关命令
+logrotate
+klogd
+syslogd
+dmesg
+```
+## 47.重要的配置文件
+```
+启动引导程序配置文件
+LILO /etc/lilo.conf
+GRUB /boot/grub/menu.lst
+系统启动文件核脚本
+主启动控制文件 /etc/inittab
+SysV 启动脚本的位置 /etc/init.d、/etc/rc.d/init.d 或/etc/rc.d
+SysV 启动脚本链接的位置 /etc/init.d/rc?.d、/etc/rc.d/rc?.d 或/etc/rc?.d
+本地启动脚本 /etc/rc.d/rc.local、/etc/init.d/boot.local 或/etc/rc.boot 里的文件
+网络配置文件
+建立网络接口的脚本 /sbin/ifup
+保存网络配置数据文件的目录 /etc/network、/etc/sysconfig/network 和
+/etc/sysconfig/network-scripts
+保存解析 DNS 服务的文件 /etc/resolv.conf
+DHCP 客户端的配置文件 /etc/dhclient.conf
+超级服务程序配置文件和目录
+inetd 配置文件 /etc/inetd.conf
+TCP Wrappers 配置文件 /etc/hosts.allow 和/etc/hosts.deny
+xinetd 配置文件 /etc/xinetd.conf 和/etc/xinetd.d 目录里的文件
+硬件配置
+内核模块配置文件 /etc/modules.conf
+硬件访问文件
+Linux 设备文件 /dev 目录里
+保存硬件和驱动程序数据的文件 /proc 目录里
+扫描仪配置文件
+SANE 主配置 /etc/sane.d/dll.conf
+特定扫描仪的配置文件 /etc/sane.d 目录里以扫描仪型号命名的文件
+打印机配置文件
+BSD LPD 核 LPRng 的本地打印机主配置文件 /etc/printcap
+CUPS 本地打印机主配置和远程访问受权文件 /etc/cups/cupsd.conf
+BSD LPD 远程访问受权文件 /etc/hosts.lpd
+LPRng 远程访问受权文件 /etc/lpd.perms
+文件系统
+文件系统表 /etc/fstab
+软驱装配点 /floppy、/mnt/floppy 或/media/floppy
+光驱装配点 /cdrom、/mnt/cdrom 或/media/cdrom
+shell 配置文件
+bash 系统非登录配置文件 /etc/bashrc、/etc/bash.bashrc 或/etc/bash.bashrc.local
+bash 系统登录文件 /etc/profile 和/etc/profile.d 里的文件
+bash 用户非登录配置文件 ~/.bashrc
+bash 用户登录配置文件 ~/.profile
+XFree86 配置文件核目录
+XFree86 主配置文件 /etc/XF86config、/etc/X11/XF86Config 或/etc/X11/XF86Config-4
+字体服务程序配置文件 /etc/X11/fs/config
+Xft 1.x 配置文件 /etcX11/XftConfig
+Xft 2.0 配置文件 /etc/fonts/fonts.conf
+字体目录 /usr/X11R6/lib/X11/fonts 和/usr/share/fonts
+Web 服务程序配置文件
+Apache 主配置文件 /etc/apache、/etc/httpd 或/httpd/conf 里的 httpd.conf 或 httpd2.conf 文
+件
+MIME 类型文件 与 Apache 主配置文件在同一目录里的 mime.types 或 apache-mime.types
+文件服务程序配置文件
+ProFTPd 配置文件 /etc/proftpd.conf
+vsftpd 配置文件 /etc/vsftpd.conf
+NFS 服务程序的输出定义文件 /etc/exports
+NFS 客户端装配的 NFS 输出 /etc/fstab
+Samba 配置文件 /etc/samba/smb.conf
+Samba 用户配置文件 /etc/samba/smbpasswd
+邮件服务程序配置文件
+sendmail 主配置文件 /etc/mail/sendmail.cf
+sendmail 源配置文件 /etc/mail/sendmail.mc 或/usr/share/sendmail/cf/cf/linux.smtp.mc 或
+其他文件
+Postfix 主配置文件 /etc/postfix/main.cf
+Exim 主配置文件 /etc/exim/exim.cf
+Procmail 配置文件 /etc/procmailrc 或~/.procmailrc
+Fetchmail 配置文件 ~/.fetchmailrc
+远程登录配置文件
+SSH 服务程序配置文件 /etc/ssh/sshd_config
+SSH 客户端配置文件 /etc/ssh/ssh_config
+XDM 配置文件 /etc/X11/xdm 目录下
+GDM 配置文件 /etc/X11/gdm 目录下
+VNC 服务程序配置文件 /usr/X11R6/bin/vncserver 启动脚本和~/.vnc 目录里的文件
+其他服务程序配置文件
+DHCP 服务程序配置文件 /etc/dhcpd.conf
+BIND 服务程序配置文件 /etc/named.conf 和/var/named/
+NTP 服务程序配置文件 /etc/ntp.conf
+```
+> ***特别注意：*** Linux中没有一个标准的配置文件格式。在 Linux 中，每个程序员都可以自由选择他或她喜欢的配置文件格式。可以选择的格式很多，从 /etc/shells 文件（它包含被一个换行符分开的 shell 的列表），到 Apache 的复杂的 /etc/httpd.conf 文件。
 
