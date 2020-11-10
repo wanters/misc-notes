@@ -1168,4 +1168,10 @@ BIND 服务程序配置文件 /etc/named.conf 和/var/named/
 NTP 服务程序配置文件 /etc/ntp.conf
 ```
 > ***特别注意：*** Linux中没有一个标准的配置文件格式。在 Linux 中，每个程序员都可以自由选择他或她喜欢的配置文件格式。可以选择的格式很多，从 /etc/shells 文件（它包含被一个换行符分开的 shell 的列表），到 Apache 的复杂的 /etc/httpd.conf 文件。
-
+## 48.Makefile
+```
+    make -p #查看隐式规则
+    gcc -Mm #查看依赖
+```
+## 49.加密算法
+* [加密算法比较](https://blog.csdn.net/chenze666/article/details/79730753)
