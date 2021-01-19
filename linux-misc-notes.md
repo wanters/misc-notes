@@ -111,9 +111,46 @@
 ```
     将写好的脚本（.sh文件）放到目录 /etc/profile.d/ 下，系统启动后就会自动执行该目录下的所有shell脚本
 ```
-* chkconfig  
+* update-rc.d  
+[a.启动流程](https://blog.csdn.net/u011857683/article/details/81395893)  
+[b.启动脚本编写模板](https://blog.csdn.net/weixin_34146805/article/details/89826513)
 ```
+    service、chkconfig和update-rc.d的关系
+    * 三者都是对/etc/init.d文件下的脚本或者服务进行操作的命令
+    * service是即时生效，重启后失效
+    * chkconfig是当前不生效，重启之后才生效的命令(相当于开机自启动)
+    * update-rc.d是ubuntu中替代chkconfig
 
+    下面详细说明update-rc.d命令
+    * update-rc.d [-n] [-f] name remove 用于移除脚本
+      update-rc.d [-n] name default/start/stop [NN | SS KK] level . 用于添加脚本(注意最后的句点)
+      NN表示执行序号（0-99），SS表示启动时的执行序号，KK表示关机时的执行序号，SS、KK主要用于在脚本直接的执行顺序上有依赖关系的情况下。
+      -n：不做任何事情，只显示将要做的。（预览、做测试）
+      -f：强制移除符号连接，即使 /etc/init.d/script-name 仍然存在
+    * 凡是以Kxx开头的，都以stop为参数来调用
+      凡是以Sxx开头的，都以start为参数来调用
+    * rcS.d、rc5.d、rc.local启动顺序
+        (1) 启动Boot Manager
+        (2) 加载系统内核，启动init进程，init进程是Linux的根进程，所有的系统进程都是它的子进程
+        (3) init进程读取“/etc/inittab”文件中的信进入inittab中预设的运行级别，按顺序运行该运行级别对应文件夹(init*.d)下的脚本。
+            脚本通常以“start”参数启动，并指向一个系统中的程序。
+            通常情况下，“/etc/rcS.d/”目录下的启动脚本首先被执行，然后是“/etc/rcN.d/”目录。
+            例如您设定的运行级别为3,那么它对应的启动目录为“/etc/rc3.d/”。
+        (4) 根据“/etc/rcS.d/”文件夹中对应的脚本启动Xwindow服务“xorg” 。
+            Xwindow为Linux下的图形用户界面系统。
+        (5) 启动登录管理器，等待用户登录。
+    * /etc/profile /etc/rc.d/rc.local /etc/inittab, /etc/init.d/rcS和/etc/profile、~/.bash_profile启动顺序
+        是先加载环境变量还是先启动脚本？？？
+        /etc/inittab,/etc/init.d/rcS和/etc/profile三者的顺序就是：
+            /etc/inittab > /etc/init.d/rcS > /etc/profile
+        注意：
+            rcX.d是执行启动脚本的【应用】
+            profile是配置环境变量的，当然也可以执行应用【变量，当然也可以是脚本的方式定义变量，如：在profile.d下】
+    * Ubuntu系统架构关于启动项大致分为四类，每一类都分为系统级和用户级
+        (1) 第一类upstart，或者叫job，由init管理，配置文件目录/etc/init，~/.init
+        (2) 第二类叫service，由rc.d管理，配置文件目录/etc/init.d，以及/etc/rc.local文件
+        (3) 第三类叫cron，由contab管理，使用crontab进行配置
+        (4) 第四类叫startup，由xdg管理，配置文件目录/etc/xdg/autostart，以及~/.config/autostart
 ```
 ## 5. 网络应用协议  
 * FTP  
@@ -150,7 +187,7 @@
 > FTP和TFTP区别  
 > 1. 交互使用FTP，TFTP仅允许单向传输的文件  
 > 2. FTP提供身份验证，TFTP不提供身份验证  
-> 3. FTP 使用已知TCP端口号[20]的数据和[21]用于连接对话框。TFTP用UDP 端口号[69]进行文件传输  
+> 3. FTP 使用已知TCP端口号[20]的数据和[21]用于连接对话框。TFTP用UDP端口号[69]进行文件传输  
 > 4. FTP依赖于TCP，是面向连接并提供可靠的控件。TFTP依赖UDP，需要减少开销, 几乎不提供控件  
 * SFTP  
 ```
@@ -230,6 +267,15 @@
     #时区相关
     #/etc/localtime或者查看/etc/profile中TZ
     #cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+```
+```
+    注意
+    1.ntpd和ntpdate的区别
+    2.来回链路的时延Sigma：
+        Sigma = (t4-t1)-(t3-t2)
+    因此，假设来回网络链路是对称的，即传输时延相等，那么可以计算客户端与服务器之间的时间误差Delta为：
+        Delta = t2-t1-Sigma/2=((t2-t1)+(t3-t4))/2
+
 ```
 ## 6. 设备类型 
 ```
@@ -904,7 +950,7 @@ Linux应用编程书籍推荐：
 2.设置mac
 	读st芯片唯一id作为mac地址
 	硬复位lan8720
-	初始化ETH（配置mac和开启中断）
+	初始化ETH（配置mac和开启中断及自动协商）
 		HAL_ETH_Init
 3.初始化lwip
 	lwip_init
@@ -914,11 +960,23 @@ Linux应用编程书籍推荐：
 	netif_add
 		添加网卡
 		初始化ip、netmask和gateway及硬件初始化
+        ethernetif_init
+            etharp_output
+            low_level_output
+            low_level_init
+        ethernet_input     
+            接收数据处理
+    ethernetif_input[数据接收]
+        low_level_input（读取dma传输数据长度和对应的数据内容pbuf）
+        ethernet_input接收到数据处理
+        HAL_ETH_BuildRxDescriptors 接收下一包数据
 	netif_set_default
 		设定默认网卡
 	netif_set_up
 		启动网卡
-
+    DMA传输
+    缓存问题
+        SCB_CleanInvalidateDCache   
 注意事项
 	1.没有插网线时上电
 	2.连续连接断开（看stm32的tcp收发是否正常）
@@ -988,6 +1046,8 @@ Linux系统的语言、地区、字符集，LANG变量的具体用法本文后�
 用户当前使用的Shell解析器。
 5）HISTSIZE
 保存历史命令的数目。
+设置历史命令时间戳
+export HISTTIMEFORMAT='%F %T '
 6）USER
 当前登录用户的用户名。
 7）HOME
@@ -1203,7 +1263,7 @@ NTP 服务程序配置文件 /etc/ntp.conf
 1.可重入函数
     一个可重入的函数简单来说就是可以被中断的函数，也就是说，可以在这个函数执行的任何时刻中断它，
     转入OS调度下去执行另外一段代码，而返回控制时不会出现什么错误。可重入（reentrant）函数可以
-    由多于一个任务并发使用，而不必担心数据错误。相反，不可重入（non-reentrant）函数不能由超过
+    由多于一个任务并发使用，而不必担心数据错误。相反，不可重入（non-reentrant）函��不能由超过
     一个任务所共享，除非能确保函数的互斥（或者使用信号量，或者在代码的关键部分禁用中断）。
     
     可重入函数可以在任意时刻被中断，稍后再继续运行，不会丢失数据。可重入函数要么使用本地变量，
@@ -1623,3 +1683,9 @@ NTP 服务程序配置文件 /etc/ntp.conf
         # cat /sys/block/sda/queue/scheduler
     
 ```
+## 56.repo
+* [repo安装](https://blog.csdn.net/qq_33160790/article/details/78193314)
+```vim
+    $ git clone https://git.dev.tencent.com/codebug8/repo.git # repo下载，可以去其它git仓库也可以
+```
+* [repo使用](https://blog.csdn.net/nwpushuai/article/details/78778602)
