@@ -31,3 +31,42 @@ map文件：
     3.STM32的栈，是向下生长的。事实上，一般CPU的栈增长方向，都是向下的。而堆的生长方向，都是向上的。堆和栈，只是他们各自的起始地址和增长方向不同，他们没有一个固定的界限，所以一旦堆栈冲突，系统就到了崩溃的时候了。
     4.程序中的常量，如果没加const也会编译到SRAM里，加了const会被编译到flash中。    
 ```
+## 3.lwip
+```
+    * udp通信[2021-03-05]
+    stm32+lwip[udp]
+    1.使用工具与stm32建立udp连接，快速发送[10ms/包，5000字节包数据]，stm32会出现hardfault或者网络ping不通现象
+    2.进入hardfault
+    大概原因是lwipopts.h配置不对，小数据和大数据配置是有区别的？
+    快速收发(1ms一包数据)
+
+    * 发送数据太快
+        解决方式？
+    * 发送数据太大
+        解决方式？
+    * 发送数据太快太大
+        解决方式？
+
+    3.ping不通
+	首先明确ping是icmp协议，是mcu处理的，不是phy芯片[lan8720]
+	* 确认ip，netmask和gateway
+	* 确认是否进入接收中断
+	* 确认是否进入ethernetif_input
+	* 确认是否进入low_level_input
+	* 确认io配置[因为是100M网，所以速度要匹配]
+	 	GPIO_SPEED_FREQ_HIGH和GPIO_SPEED_FREQ_VERY_HIGH
+	* 确认是否开启SCB_EnableDCache
+	* 确认是否清楚无效缓存，low_level_input和low_level_output
+		SCB_CleanInvalidateDCache()和
+		SCB_InvalidateDCache_by_Addr()    
+
+    4.开启插拔网线监测线程和状态回调函数
+	/*----- Default Value for LWIP_NETIF_STATUS_CALLBACK: 0 ---*/
+	#define LWIP_NETIF_STATUS_CALLBACK 1
+	/*----- Default Value for LWIP_NETIF_LINK_CALLBACK: 0 ---*/
+	#define LWIP_NETIF_LINK_CALLBACK 1
+	* 回调函数
+		netif_set_link_callback(&gnetif, ethernet_link_status_updated);
+	* 插拔网线操作线程	
+		osThreadDef(EthLink, ethernet_link_thread, osPriorityAboveNormal, 0, configMINIMAL_STACK_SIZE *2);
+```

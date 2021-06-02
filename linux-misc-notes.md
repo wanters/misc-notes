@@ -127,6 +127,8 @@
       NN表示执行序号（0-99），SS表示启动时的执行序号，KK表示关机时的执行序号，SS、KK主要用于在脚本直接的执行顺序上有依赖关系的情况下。
       -n：不做任何事情，只显示将要做的。（预览、做测试）
       -f：强制移除符号连接，即使 /etc/init.d/script-name 仍然存在
+      update-rc.d apache2 start 20 2 3 4 5 . stop 80 0 1 6 .
+      特别注意：update-rc.d只支持添加/etc/init.d/下的脚本，如果脚本不在该目录下是，可软链到该目录下
     * 凡是以Kxx开头的，都以stop为参数来调用
       凡是以Sxx开头的，都以start为参数来调用
     * rcS.d、rc5.d、rc.local启动顺序
@@ -262,7 +264,7 @@
     $ vi /etc/ntp.conf                #修改配置文件
     $ netstat -ln | grep 123          #查询是否启动方式1
     $ service ntp status              #查询是否启动方式2
-    $ netdate ip    #同步时间方式1
+    $ ntpdate ip    #同步时间方式1
     $ ntpdate-sync  #同步时间方式2(修改/etc/default/ntpdate)
     #时区相关
     #/etc/localtime或者查看/etc/profile中TZ
@@ -521,7 +523,7 @@ CST:代表４个不同时区：
 ```
     建一个test.c,把需要查看的宏用上，然后gcc -E test.c > test.info,打开test.info查看即可
 ```
-## 17.配置arm为nfs启动
+## 17.配置arm为nfs启动[adlink]
 ```
     arm上进行nfs配置(可在boot时直接挂在根文件系统,也可以进入系统后挂载)
     1.首先验证可以手动挂载,确保挂载正确
@@ -1689,3 +1691,55 @@ NTP 服务程序配置文件 /etc/ntp.conf
     $ git clone https://git.dev.tencent.com/codebug8/repo.git # repo下载，可以去其它git仓库也可以
 ```
 * [repo使用](https://blog.csdn.net/nwpushuai/article/details/78778602)
+
+## 57.华北工控uboot配置
+```
+    baudrate=115200
+    boot_fdt=try 
+    bootcmd=run findfdt;mmc dev ${mmcdev};if mmc rescan; then if run loadbootscript; then run bootscript; else if run loadimage; then run mmcboot; else run netboot; fi; fi; else run netboot; fi
+    bootcmd_mfg=run mfgtool_args;bootz ${loadaddr} ${initrd_addr} ${fdt_addr};
+    bootdelay=3
+    bootscript=echo Running bootscript from mmc ...; source
+    console=ttymxc0
+    dfu_alt_info=spl raw 0x400
+    dfu_alt_info_img=u-boot raw 0x10000
+    dfu_alt_info_spl=spl raw 0x400
+    dfuspi=dfu 0 sf 0:0:10000000:0
+    emmcdev=2
+    epdc_waveform=epdc_splash.bin
+    ethprime=FEC
+    fdt_addr=0x18000000
+    fdt_file=imx6q-somb6503.dtb
+    fdt_high=0xffffffff
+    findfdt=if test $fdt_file = undefined; then if test $board_name = SABREAUTO && test $board_rev = MX6QP; then setenv fdt_file imx6qp-sabreauto.dtb; fi; if test $board_name = SABREAUTO && test $board_rev = MX6Q; then setenv fdt_file imx6q-sabreauto.dtb; fi; if test $board_name = SABREAUTO && test $board_rev = MX6DL; then setenv fdt_file imx6dl-sabreauto.dtb; fi; if test $board_name = SABRESD && test $board_rev = MX6QP; then setenv fdt_file imx6qp-sabresd.dtb; fi; if test $board_name = SABRESD && test $board_rev = MX6Q; then setenv fdt_file imx6q-sabresd.dtb; fi; if test $board_name = SABRESD && test $board_rev = MX6DL; then setenv fdt_file imx6dl-sabresd.dtb; fi; if test $fdt_file = undefined; then echo WARNING: Could not determine dtb to use; fi; fi;
+    image=zImage
+    initrd_addr=0x12C00000
+    initrd_high=0xffffffff
+    ip_dyn=yes
+    loadaddr=0x12000000
+    loadbootscript=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};
+    loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}
+    loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}
+    mfgtool_args=setenv bootargs console=ttymxc0,115200 rdinit=/linuxrc g_mass_storage.stall=0 g_mass_storage.removable=1 g_mass_storage.file=/fat g_mass_storage.ro=1 g_mass_storage.idVendor=0x066F g_mass_storage.idProduct=0x37FF g_mass_storage.iSerialNumber="" enable_wait_mode=off
+    mmcargs=setenv bootargs console=${console},${baudrate} ${smp} video=mxcfb0:dev=hdmi,1280x720M@60,if=RGB24,bpp=32 root=${mmcroot}
+    mmcautodetect=yes
+    mmcboot=echo Booting from mmc ...; run mmcargs; if test ${boot_fdt} = yes || test ${boot_fdt} = try; then if run loadfdt; then bootz ${loadaddr} - ${fdt_addr}; else if test ${boot_fdt} = try; then bootz; else echo WARN: Cannot load the DT; fi; fi; else bootz; fi;
+    mmcdev=2
+    mmcpart=1
+    mmcroot=/dev/mmcblk3p2 rootwait rw
+    netargs=setenv bootargs console=${console},${baudrate} ${smp} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp
+    netboot=echo Booting from net ...; run netargs; if test ${ip_dyn} = yes; then setenv get_cmd dhcp; else setenv get_cmd tftp; fi; ${get_cmd} ${image}; if test ${boot_fdt} = yes || test ${boot_fdt} = try; then if ${get_cmd} ${fdt_addr} ${fdt_file}; then bootz ${loadaddr} - ${fdt_addr}; else if test ${boot_fdt} = try; then bootz; else echo WARN: Cannot load the DT; fi; fi; else bootz; fi;
+    script=boot.scr
+    update_emmc_firmware=if test ${ip_dyn} = yes; then setenv get_cmd dhcp; else setenv get_cmd tftp; fi; if ${get_cmd} ${update_sd_firmware_filename}; then if mmc dev ${emmcdev} 1; then setexpr fw_sz ${filesize} / 0x200; setexpr fw_sz ${fw_sz} + 1; mmc write ${loadaddr} 0x2 ${fw_sz}; fi; fi
+    update_sd_firmware=if test ${ip_dyn} = yes; then setenv get_cmd dhcp; else setenv get_cmd tftp; fi; if mmc dev ${mmcdev}; then if ${get_cmd} ${update_sd_firmware_filename}; then setexpr fw_sz ${filesize} / 0x200; setexpr fw_sz ${fw_sz} + 1; mmc write ${loadaddr} 0x2 ${fw_sz}; fi; fi
+
+```
+## 58.设备树
+* 官方文档：[devicetree-specification-v0.2.pdf](https://www.devicetree.org/specifications/)
+* 内核文档：Documentation/devicetree/booting-without-of.txt
+* [百问网总结文档](http://wiki.100ask.org/Linux_devicetree)
+* 编译和反编译
+```vim
+    ./scripts/dtc/dtc -I dts -O dtb -o tmp.dtb arch/arm/boot/dts/xxx.dts // 编译 dts 为 dtb
+    ./scripts/dtc/dtc -I dtb -O dts -o tmp.dts arch/arm/boot/dts/xxx.dtb // 反编译 dtb 为 dts
+```
