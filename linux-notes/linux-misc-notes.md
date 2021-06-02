@@ -764,12 +764,12 @@ hard： armhf架构（对应的编译器 arm-linux-gnueabihf-gcc ）采用的默
     6.NFS：网络文件系统 (开发阶段使用)
 ```
 ## 30.常见压缩
-![tar](./tar.png)  
+![tar](./resource/tar.png)  
 ## 31.TCP流程
 * **API**
-![tcp](./tcp.jpg)  
+![tcp](./resource/tcp.jpg)  
 * **TCP三次握手四次挥手**
-![tcp握手](./tcp_handshake.jpg)
+![tcp握手](./resource/tcp_handshake.jpg)
 ```
 1.三次握手
     首先Client端发送连接请求报文，Server端接受连接后回复ACK报文，并为这次连接分配资源。
@@ -789,7 +789,7 @@ hard： armhf架构（对应的编译器 arm-linux-gnueabihf-gcc ）采用的默
     后依然没有收到回复，则证明Server端已正常关闭，那好，我Client端也可以关闭连接了。Ok，TCP连接就这样关闭了！
 ```
 ## 32.UDP流程  
-![udp](./udp.jpg)  
+![udp](./resource/udp.jpg)  
 ## 33.Visual Studio 2013
 * 使用
 ```
@@ -804,7 +804,7 @@ hard： armhf架构（对应的编译器 arm-linux-gnueabihf-gcc ）采用的默
         boost_1_55_0-msvc-12.0-64.exe
 ```
 ## 34.嵌入式框架(总结)
-![linux嵌入式框架](./嵌入式框架/linux嵌入式框架.png)  
+![linux嵌入式框架](..\嵌入式框架\linux嵌入式框架.png)  
 * [学习linux应用编程](https://blog.csdn.net/yychuyu/article/details/80636496)
 ```vim
 对于Linux应用的学习，主要有六部分：1. 环境搭建；2. 基本操作；3. 系统编程；4. 网络编程；5. 数据库编程，6. Shell编程。下面一一详细介绍。
@@ -886,7 +886,7 @@ Linux应用编程书籍推荐：
     20 - WIFI开发与应用
 ```
 ## 35.[cgi](https://github.com/boutell/cgic.git)
-![cgi](./cgi.png)  
+![cgi](./resource/cgi.png)  
 ## 36.字节对齐
 * [字节对齐背景知识](https://www.cnblogs.com/clover-toeic/p/3853132.html)
 ```vim
@@ -1012,15 +1012,15 @@ Linux应用编程书籍推荐：
 * [RFC 6455 - The WebSocket Protocol](https://blog.csdn.net/u011645307/article/details/76682705)
 ## 42.ARM体系架构
 * [ARM CPU 架构](https://www.cnblogs.com/zhangjiankun/p/4852749.html)
-![arm-cpu架构](arm-cpu架构.png)
+![arm-cpu架构](./resource/arm-cpu架构.png)
 * [ARM体系架构总结](https://blog.csdn.net/frank_zyp/article/details/84646051)
 * [ARM架构处理器全解析](https://blog.csdn.net/FunkyFrog821951259/article/details/79896210)
 ## 43.进程间通信持续性
 * [IPC持续性](https://zhuanlan.zhihu.com/p/37872762)
 * [进程间通信](http://www.cppblog.com/tankzhouqiang/archive/2011/07/04/150085.html)
-![进程间通信持续性](进程间通信持续性.jpg)
+![进程间通信持续性](./resource/进程间通信持续性.jpg)
 ## 44.linux kernel map
-![linux-kernel-map](linux-kernel-map.png)
+![linux-kernel-map](./resource/linux-kernel-map.png)
 ## 45.[环境变量](https://www.freecplus.net/ebfb46a0f8014f59a16c78ec8de73468.html)
 * 环境变量含义
 ```
@@ -1432,7 +1432,7 @@ NTP 服务程序配置文件 /etc/ntp.conf
     运算器和控制器共同组成了CPU
 ```   
 ### 3.进程和线程相关内容
-![进程和线程](./进程和线程相关内容.jpg)
+![进程和线程](./resource/进程和线程相关内容.jpg)
 ### 4.进程
 ```
     进程创建
@@ -1629,7 +1629,7 @@ NTP 服务程序配置文件 /etc/ntp.conf
         一个事件，需满足可以处理负载的条件。
 ```
 ### 8.内存管理
-![内存管理](./内存管理相关内容.png)
+![内存管理](./resource/内存管理相关内容.png)
 #### [重定位与位置无关码](https://blog.csdn.net/cherisegege/article/details/80708143)
 ```
     1.如果要使多个应用程序同时运行在内存中，必须要解决两个问题：保护和重定位。

@@ -248,7 +248,7 @@
     34.quick和qml
         为了适应手机移动应用开发， Qt5 将 QML 脚本编程提到与传统 C++ 部件编程相同的高度，力推 QML 界面编程，当然 QML 主要用于手机移动应用程序。 QML 包含大量使用手机移动设备的功能模块，比如基本部件（QtQuick 模块）、GPS 定位、渲染特效、蓝牙、NFC、WebkKit 等等。
 ```
-## 5.[QT开发](http://c.biancheng.net/view/3876.html)
+## 5.[QT控件](http://c.biancheng.net/view/3876.html)
 ```
 注意：控件和类的关系，控件也是一种类，但类不一定全是控件
     1.QSpinBox
