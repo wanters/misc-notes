@@ -1,0 +1,76 @@
+1.安装cygwin
+$ mkdir msvc
+2.下载ar-lib和compile
+
+3.设置环境变量
+3.1 for creating 64-bit binaries: through the following bash commands:
+     # Set environment variables for using MSVC 14,
+     # for creating native 64-bit Windows executables.
+
+     # Windows C library headers and libraries.
+$ WindowsCrtIncludeDir='C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\ucrt'
+$ WindowsCrtLibDir='C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\ucrt\'
+$ INCLUDE="${WindowsCrtIncludeDir};$INCLUDE"
+$ LIB="${WindowsCrtLibDir}x64;$LIB"
+
+     # Windows API headers and libraries.
+$ WindowsSdkIncludeDir='C:\Program Files (x86)\Windows Kits\8.1\Include\'
+$ WindowsSdkLibDir='C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\'
+$ INCLUDE="${WindowsSdkIncludeDir}um;${WindowsSdkIncludeDir}shared;$INCLUDE"
+$ LIB="${WindowsSdkLibDir}x64;$LIB"
+
+     # Visual C++ tools, headers and libraries.
+$ VSINSTALLDIR='C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise'
+$ VCINSTALLDIR="${VSINSTALLDIR}"'\VC\Tools\MSVC\14.16.27023'
+$ PATH=`cygpath -u "${VCINSTALLDIR}"`/bin/Hostx64/x64:"$PATH"
+$ INCLUDE="${VCINSTALLDIR}"'\include;'"${INCLUDE}"
+$ LIB="${VCINSTALLDIR}"'\lib\x64;'"${LIB}"
+
+$ export INCLUDE LIB
+
+3.2 Building 64-bit binaries with MSVC is achieved through the following
+   preparation, configure, and build commands:
+$ export PATH=/usr/local/msvc64/bin:$PATH
+$ win32_target=_WIN32_WINNT_WIN10
+$ ./configure --host=x86_64-w64-mingw32 --prefix=/usr/local/msvc64 \
+	CC="$HOME/msvc/compile cl -nologo" \
+	CFLAGS="-MD" \
+	CXX="$HOME/msvc/compile cl -nologo" \
+	CXXFLAGS="-MD" \
+	CPPFLAGS="-D_WIN32_WINNT=$win32_target -I/usr/local/msvc64/include" \
+	LDFLAGS="-L/usr/local/msvc64/lib" \
+	LD="link" \
+	NM="dumpbin -symbols" \
+	STRIP=":" \
+	AR="$HOME/msvc/ar-lib lib" \
+	RANLIB=":"
+以上需要等一会，才能进行完
+$ make
+
+4.install
+make install
+
+5.其它
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Tools\MSVC\14.16.27023\bin\Hostx64\x64\lib查看是静态库还是动态库链接
+
+6.cygwin如果漏装组件时，可使用setup-x86_64.exe，选装上即可
+
+7.特别注意
+每次关闭cygwn时，上面配置的环境变量会丢失，需要重新配置一遍
+
+8.错误
+1.configure: error: in `/cygdrive/d/lib-common/libiconv-1.16/libiconv-1.16':
+configure: error: C compiler cannot create executables
+See `config.log' for more details
+这个是环境变量没有配置正确
+2.exec.exe是windows下的
+3.libs\libiconv.res.obj : fatal error LNK1112: 模块计算机类型“x86”与目标计算机类型“x64”冲突
+3.1 安装libtool，确认不是libtool的问题
+3.2 重新解压一份源码，.configure,make，还是不行
+3.3 重启cygwin，重新配置一下环境变量，还是不行
+3.4 可以换成32位的平台，看看是否成功，可以成功
+3.5 编译64位平台的
+	需要安装对应的gcc，在安装cygwin的时候
+3.6 iconv.exe无操作权限
+	chmod 777 iconv$(EXEEXT)
+
