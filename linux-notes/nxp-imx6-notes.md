@@ -170,6 +170,8 @@
     can
     framebuffer（lcd等）
     input
+    platform总线（device-driver）
+    pwm子系统
 
 疑问1：
     为什么spi总线上spidev可以映射到/dev/spidev
@@ -201,6 +203,16 @@ soc->引脚分配->设备树描述(设备定义等)->kernel修改->等待uboot�
 ```
 各个smarc板厂家提供的mfgtool不同，主要是里面的配置文件（vbs和ucl2.xml）以及mksdcard.sh.tar不同
 ```
+* mfgtool启动选择
+![mfgtool启动选择.png](./resource/mfgtool启动选择.png)
+* ucl2.xml说明
+```
+    特别注意：
+        uboot、内核（设备树）和根文件系统是分开的，没有打包为同一个包
+```
+![烧录准备](./resource/ramfs烧录准备.png)
+![烧录](./resource/烧录.png)
+
 ## 13.NXP i.MX Pins Tool v2.0
 * 下载 pins_tool_for_i.mx_processors
 ## 14.片上一次编程控制器(OCOTP_CTRL)
