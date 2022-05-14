@@ -299,6 +299,9 @@ stack栈是用户存放程序临时创建的局部变量，也就是说我们函
 ```
     $ make -p  //查看隐式规则
     $ gcc -MM  //查看依赖
+    $ gcc -E main.c //查看预处理结果，比如头文件是哪个
+    $ gcc -E -dM main.c > 1.txt // 把所有的宏都展开，存在1.txt中
+    $ gcc -Wp, -MD, adbc.dep -c -o main.o main.c //生成依赖文件，这样的话，即使是头文件改变后，也会即使发现并编译 
 ```
 
 
